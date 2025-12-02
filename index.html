@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTS Creativity - The Revolutionary Website</title>
+    <style>
+    /* =========================================
+       1. VARIABLES & RESET
+       ========================================= */
+    :root {
+        --primary-blue: #00aeef;
+        --dark-bg: #000;
+        --card-bg: #222;
+        --text-color: #fff;
+        --overlay-bg: rgba(0, 0, 0, 0.96);
+        
+        --logo-desktop: 40px; 
+        --logo-mobile: 30px;    
+
+        --z-nav: 1000;
+        --z-social: 1200; /* Di atas Nav, di bawah Overlay Menu */
+        --z-overlay: 1500;
+        --z-hamburger: 2000;
+        --z-close-btn: 2001;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        overflow-x: hidden;
+    }
+
+    /* =========================================
+       2. NAVIGATION BAR
+       ========================================= */
+    nav {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100px; 
+        padding: 25px 40px; display: flex; justify-content: center; align-items: center;
+        z-index: var(--z-nav); background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        pointer-events: none; 
+    }
+
+    .logo-container {
+        pointer-events: auto; width: var(--logo-desktop); height: auto;
+        display: flex; justify-content: center; align-items: center; 
+        transition: width 0.5s ease; 
+    }
+
+    .logo-container.lenovo-mode {
+        width: 90px; 
+    }
+
+    .logo-img { 
+        width: 100%; height: auto; display: block; 
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+        transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1; transform: scale(1);
+    }
+
+    .logo-img.fade-out {
+        opacity: 0; transform: scale(0.8); 
+    }
+
+    /* =========================================
+       3. HAMBURGER BUTTON
+       ========================================= */
+    .hamburger {
+        pointer-events: auto; cursor: pointer; width: 40px; height: 30px;
+        position: absolute; left: 40px; top: 60px; transform: translateY(-50%);
+        z-index: var(--z-hamburger); display: flex; flex-direction: column; justify-content: space-between;
+        transition: all 0.3s ease;
+    }
+    .hamburger span { display: block; width: 100%; height: 3px; background-color: #fff; transition: all 0.3s ease; }
+    .hamburger:hover span { background-color: var(--primary-blue); }
+    
+    .hamburger.active { 
+        opacity: 0; transform: translateY(-50%) scale(0.8); pointer-events: none; 
+    }
+
+    /* =========================================
+       4. SOCIAL MEDIA CYCLER (FITUR UTAMA)
+       ========================================= */
+    .social-cycler {
+        position: fixed;
+        top: 60px; /* Sejajar vertikal dengan Hamburger & Logo */
+        right: 40px;
+        transform: translateY(-50%); /* Centering vertikal */
+        width: 30px; /* Ukuran Icon */
+        height: 30px;
+        z-index: var(--z-social);
+        pointer-events: auto;
+    }
+
+    .social-cycler a {
+        display: block; width: 100%; height: 100%;
+        /* Pastikan link clickable penuh */
+    }
+
+    .social-cycler img {
+        width: 100%; height: 100%; object-fit: contain;
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); 
+        /* Transisi Opacity untuk efek Fade */
+        transition: opacity 0.5s ease-in-out, transform 0.5s ease;
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Class ini ditambahkan oleh Javascript saat berganti */
+    .social-cycler img.fade-out {
+        opacity: 0;
+        transform: scale(0.8) rotate(-10deg); /* Sedikit efek putar saat ganti */
+    }
+
+    /* =========================================
+       5. MENU OVERLAY
+       ========================================= */
+    .menu-overlay {
+        position: fixed; inset: 0; background-color: var(--overlay-bg); z-index: var(--z-overlay);
+        display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden;
+        transition: all 0.4s ease; backdrop-filter: blur(8px); pointer-events: auto;
+    }
+    .menu-overlay.open { opacity: 1; visibility: visible; }
+
+    .close-btn {
+        position: absolute; top: 60px; left: 40px; width: 40px; height: 40px; cursor: pointer;
+        z-index: var(--z-close-btn); transform: translateY(-50%) scale(0.5); opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        display: flex; justify-content: center; align-items: center;
+    }
+
+    .close-btn span { 
+        position: absolute; width: 100%; height: 3px; background-color: #fff; border-radius: 2px; 
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .close-btn span:nth-child(1) { transform: rotate(45deg); }
+    .close-btn span:nth-child(2) { transform: rotate(-45deg); }
+    .close-btn:hover span:nth-child(1) { transform: rotate(135deg); background-color: var(--primary-blue); }
+    .close-btn:hover span:nth-child(2) { transform: rotate(45deg); background-color: var(--primary-blue); }
+
+    .menu-overlay.open .close-btn { opacity: 1; transform: translateY(-50%) scale(1); transition-delay: 0.1s; }
+
+    .menu-tabs-container { width: 80%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+    .menu-tab {
+        display: flex; align-items: center; text-decoration: none; color: #fff; padding: 15px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; transition: all 0.3s ease;
+        opacity: 0; transform: translateY(20px);
+    }
+    .menu-tab .tab-number { font-size: 1.2rem; color: #666; margin-right: 25px; font-weight: 300; transition: color 0.3s; }
+    .menu-tab .tab-text { font-size: 2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.3s, color 0.3s; }
+    .menu-tab:hover .tab-number { color: var(--primary-blue); }
+    .menu-tab:hover .tab-text { color: var(--primary-blue); transform: translateX(10px); }
+    .menu-tab:last-child { border-bottom: none; }
+    
+    .menu-overlay.open .menu-tab { opacity: 1; transform: translateY(0); }
+    .menu-overlay.open .menu-tab:nth-child(1) { transition-delay: 0.1s; }
+    .menu-overlay.open .menu-tab:nth-child(2) { transition-delay: 0.2s; }
+    .menu-overlay.open .menu-tab:nth-child(3) { transition-delay: 0.3s; }
+    .menu-overlay.open .menu-tab:nth-child(4) { transition-delay: 0.4s; }
+
+    /* =========================================
+       6. SCROLL & SECTIONS
+       ========================================= */
+    .scroll-container { 
+        height: 100vh; width: 100%; overflow-y: scroll; 
+        scroll-snap-type: y mandatory; scroll-behavior: smooth; 
+        scrollbar-width: none; -ms-overflow-style: none; 
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+
+    section {
+        height: 100vh; width: 100%; scroll-snap-align: start; position: relative;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        background-size: cover; background-position: center; text-align: center;
+    }
+    
+    section::before { 
+        content: ''; position: absolute; inset: 0; 
+        background: rgba(0, 0, 0, 0.4); z-index: 1; pointer-events: none; 
+    }
+
+    .content {
+        position: relative; z-index: 10; 
+        max-width: 1200px; padding: 20px; width: 100%;
+        display: flex; flex-direction: column; align-items: center;
+        pointer-events: auto;
+    }
+
+    h1 { font-size: 3.5rem; margin-bottom: 1rem; text-transform: uppercase; line-height: 1.1; }
+    h2 { font-size: 2rem; margin-bottom: 20px; text-transform: uppercase; }
+    p { font-size: 1.2rem; margin-bottom: 2rem; font-weight: 300; }
+
+    .btn {
+        display: inline-block; padding: 12px 30px; border: 2px solid #fff; color: #fff;
+        text-decoration: none; text-transform: uppercase; font-weight: bold; transition: all 0.3s;
+        cursor: pointer; position: relative; z-index: 20;
+    }
+    .btn:hover { background: #fff; color: #000; }
+
+    /* =========================================
+       7. FADE BACKGROUNDS & HOME ANIMATION
+       ========================================= */
+    #home, #bini { background-color: var(--dark-bg); overflow: hidden; position: relative; }
+    .fade-bg::after {
+        content: ""; position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center;
+        opacity: 0; transform: scale(1.1); transition: opacity 1.5s ease-in-out, transform 1.5s ease-out;
+    }
+    .fade-bg.focused::after { opacity: 1; transform: scale(1); }
+    
+    #home::after { background-image: url('Purple Cloud gf.gif'); }
+    #bini::after { background-image: url('StarryNight.png'); }
+    
+    #home .content, #bini .content { z-index: 2; }
+    #home::before, #bini::before { z-index: 1; }
+
+    /* --- HOME ANIMATION STYLE --- */
+    .home-text-wrapper {
+        transform: translateY(15vh); 
+        transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .home-profile-img {
+        width: 250px; height: 250px; object-fit: cover; border-radius: 50%; margin-top: 30px;
+        border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 0 30px rgba(0, 174, 239, 0.3);
+        opacity: 0; transform: translateY(100px); 
+        transition: opacity 1s ease, transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    #home.focused .home-text-wrapper { transform: translateY(0); transition-delay: 1s; }
+    #home.focused .home-profile-img { opacity: 1; transform: translateY(0); transition-delay: 1s; }
+
+    /* =========================================
+       8. PROGRAM GRID
+       ========================================= */
+    .program-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 90%; max-width: 1000px; margin-top: 30px; }
+    
+    .program-card {
+        background: var(--card-bg); height: 200px; position: relative; overflow: hidden; border-radius: 4px; cursor: pointer;
+        opacity: 0; transform: translateY(50px) scale(0.95);
+        transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s, border 0.3s;
+    }
+    
+    #bini.focused .program-card { opacity: 1; transform: translateY(0) scale(1); }
+    #bini.focused .program-card:nth-child(1) { transition-delay: 0.1s; }
+    #bini.focused .program-card:nth-child(2) { transition-delay: 0.2s; }
+    #bini.focused .program-card:nth-child(3) { transition-delay: 0.3s; }
+    #bini.focused .program-card:nth-child(4) { transition-delay: 0.4s; }
+    #bini.focused .program-card:nth-child(5) { transition-delay: 0.5s; }
+    #bini.focused .program-card:nth-child(6) { transition-delay: 0.6s; }
+    
+    .program-card:hover { transform: scale(1.05) !important; z-index: 3; box-shadow: 0 0 25px rgba(255, 255, 255, 0.7); border: 1px solid #fff; transition-delay: 0s !important; }
+    .program-card a { text-decoration: none; color: #fff; display: block; width: 100%; height: 100%; }
+    .program-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: opacity 0.3s, filter 0.3s; }
+    .program-card:hover img { opacity: 1; filter: brightness(1.2); }
+    
+    .program-title {
+        position: absolute; bottom: 10px; left: 10px; font-weight: bold; text-shadow: 1px 1px 3px black; pointer-events: none;
+        opacity: 0; transform: scale(0); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #bini.focused .program-title { opacity: 1; transform: scale(1); }
+    
+    #bini.focused .program-card:nth-child(1) .program-title { transition-delay: 0.2s; }
+    #bini.focused .program-card:nth-child(2) .program-title { transition-delay: 0.3s; }
+    #bini.focused .program-card:nth-child(3) .program-title { transition-delay: 0.4s; }
+    #bini.focused .program-card:nth-child(4) .program-title { transition-delay: 0.5s; }
+    #bini.focused .program-card:nth-child(5) .program-title { transition-delay: 0.6s; }
+    #bini.focused .program-card:nth-child(6) .program-title { transition-delay: 0.7s; }
+
+    /* =========================================
+       9. DEVICE SPECS & BACKGROUNDS
+       ========================================= */
+    #phone { background: linear-gradient(to bottom, #000000 0%, #ff8c00 100%); }
+    #laptop { background: linear-gradient(to bottom, #ff8c00 0%, #000000 100%); }
+
+    .split-content {
+        display: flex; flex-direction: row; align-items: center; justify-content: center;
+        width: 90%; max-width: 1100px; gap: 50px; text-align: left;
+        position: relative; z-index: 20; 
+    }
+
+    .device-img-box {
+        flex: 1; display: flex; justify-content: center; align-items: center;
+        opacity: 0; transform: translateX(-50px); transition: all 1s ease-out;
+    }
+
+    .device-img {
+        max-width: 100%; max-height: 70vh; object-fit: contain;
+        filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.9));
+        transition: opacity 0.5s ease-in-out; 
+    }
+
+    .spec-details {
+        flex: 1; color: #fff; opacity: 0; transform: translateX(50px);
+        transition: all 1s ease-out; transition-delay: 0.3s;
+    }
+
+    .spec-title { font-size: 3rem; margin-bottom: 10px; color: #fff; text-transform: uppercase; font-weight: 800; }
+    .spec-desc { font-size: 1.1rem; margin-bottom: 25px; color: #fff; line-height: 1.5; }
+
+    .specs-list { list-style: none; padding: 0; }
+    .specs-list li {
+        display: flex; justify-content: space-between; padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+        font-size: 1rem; color: #fff; 
+    }
+    .specs-list li strong { color: #fff; font-weight: 600; }
+    .specs-list li span { color: #fff; text-align: right; }
+
+    .focused .device-img-box { opacity: 1; transform: translateX(0); }
+    .focused .spec-details { opacity: 1; transform: translateX(0); }
+
+    /* =========================================
+       10. FOOTER & RESPONSIVE
+       ========================================= */
+    .footer-section { height: auto; min-height: 250px; background: #000; display: flex; justify-content: center; align-items: center; padding: 40px; border-top: 1px solid #333; }
+    .social-icons a { color: #fff; margin: 0 15px; font-size: 1.5rem; text-decoration: none; transition: color 0.3s; }
+    .social-icons a:hover { color: var(--primary-blue); }
+
+    @media (max-width: 768px) {
+        :root { --logo-desktop: var(--logo-mobile); }
+        h1 { font-size: 2.2rem; } h2 { font-size: 1.5rem; }
+        .program-grid { grid-template-columns: 1fr; }
+        nav { padding-left: 20px; padding-right: 20px; }
+        .hamburger, .close-btn { left: 20px; }
+        .menu-tab .tab-text { font-size: 1.5rem; }
+
+        .split-content { flex-direction: column; text-align: center; gap: 30px; }
+        .device-img-box, .spec-details { transform: translateY(30px); }
+        .focused .device-img-box, .focused .spec-details { transform: translateY(0); }
+        .device-img { max-height: 40vh; }
+        .spec-title { font-size: 2rem; }
+        .specs-list li { font-size: 0.9rem; }
+        
+        .logo-container.lenovo-mode { width: 60px; }
+        .home-profile-img { width: 180px; height: 180px; }
+        .home-text-wrapper { transform: translateY(10vh); }
+
+        /* Social Cycler Adjustment for Mobile */
+        .social-cycler { right: 20px; width: 25px; height: 25px; }
+    }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="hamburger" onclick="toggleMenu()" title="Menu">
+            <span></span><span></span><span></span>
+        </div>
+        <a href="#" class="logo-container">
+            <img src="Logo Nathan HD 1.png" alt="NTS" class="logo-img" id="mainLogo">
+        </a>
+    </nav>
+    
+    <div class="social-cycler">
+        <a href="https://web.facebook.com/nathan.tiansugianto" target="_blank" id="socialLink">
+            <img src="icon-fb.png" alt="Social Media" id="socialIcon">
+        </a>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="close-btn" onclick="toggleMenu()" title="Close Menu">
+            <span></span><span></span>
+        </div>
+        <div class="menu-tabs-container">
+            <a href="#home" class="menu-tab" onclick="toggleMenu()">
+                <span class="tab-number">01</span><span class="tab-text">Welcome Screen</span>
+            </a>
+            <a href="#bini" class="menu-tab" onclick="toggleMenu()">
+                <span class="tab-number">02</span><span class="tab-text">Fiction Character</span>
+            </a>
+            <a href="#phone" class="menu-tab" onclick="toggleMenu()">
+                <span class="tab-number">03</span><span class="tab-text">Phone Device</span>
+            </a>
+            <a href="#laptop" class="menu-tab" onclick="toggleMenu()">
+                <span class="tab-number">04</span><span class="tab-text">Laptop Device</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="scroll-container">
+        
+        <section id="home" class="fade-bg">
+            <div class="content">
+                <div class="home-text-wrapper">
+                    <h1>My Website.<br>It's In Your Hands Now.</h1>
+                    <p>The Revolutionary Website that i ever make.</p>
+                </div>
+                <img src="PFPNTS2.png" alt="Profile Picture" class="home-profile-img">
+            </div>
+        </section>
+
+        <section id="bini" class="fade-bg">
+            <div class="content" style="width: 100%; max-width: 1200px;">
+                <h2>Fiction Character that i like!</h2>
+                <div class="program-grid">
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=ai%CC%87%20hosi%CC%87no">
+                            <img src="Ai1.jpeg" alt="Ai Hoshino"><span class="program-title">Ai Hoshino</span>
+                        </a>
+                    </div>
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=sumi%20sakurasawa">
+                            <img src="Sumi1.jpg" alt="Sumi"><span class="program-title">Sumi Sakurasawa</span>
+                        </a>
+                    </div>
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=alisa%20mikhailovna">
+                            <img src="Alya1.jpeg" alt="Alya"><span class="program-title">Alisa Mikhailovna</span>
+                        </a>
+                    </div>
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=ai%20mie">
+                            <img src="AiMie1.jpeg" alt="Ai Mie"><span class="program-title">Ai Mie</span>
+                        </a>
+                    </div>
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=kana%20arima">
+                            <img src="Kana1.png" alt="Kana"><span class="program-title">Kana Arima</span>
+                        </a>
+                    </div>
+                    <div class="program-card">
+                        <a href="https://id.pinterest.com/search/pins/?q=carlotta">
+                            <img src="Carlotta1.jpg" alt="Carlotta"><span class="program-title">Carlotta</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phone">
+            <div class="content split-content">
+                <div class="device-img-box">
+                    <img src="PocoF51.jpg" alt="Poco F5" class="device-img">
+                </div>
+                <div class="spec-details">
+                    <h2 class="spec-title">Xiaomi Poco F5</h2>
+                    <p class="spec-desc">Smartphone yang diperkenalkan sebagai produk 'Flagship' Poco, meski harganya masih masuk di rentang kelas menengah (mid-range).</p>
+                    <ul class="specs-list">
+                        <li><strong>Chipset</strong> <span>Snapdragon 7+ Gen 2</span></li>
+                        <li><strong>RAM</strong> <span>12GB</span></li>
+                        <li><strong>Storage</strong> <span>256GB UFS 3.1</span></li>
+                        <li><strong>Screen</strong> <span>6.67", 1080x2400, AMOLED 120Hz</span></li>
+                        <li><strong>Camera</strong> <span>64MP Main + 8MP Ultra Wide</span></li>
+                        <li><strong>Battery</strong> <span>5000mAh (67W Charge)</span></li>
+                    </ul>
+                    <br>
+                    <a href="https://www.gsmarena.com/xiaomi_poco_f5-12258.php" class="btn">View Details</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="laptop">
+             <div class="content split-content">
+                <div class="device-img-box">
+                    <img src="LOQ1.png" alt="LOQ1" class="device-img" id="laptopSlideshow">
+                </div>
+                <div class="spec-details">
+                    <h2 class="spec-title">Lenovo LOQ - 15IAX9</h2>
+                    <p class="spec-desc">Laptop gaming terbaru dari lenovo yang sudah menggunakan prosesor terbaru dari Intel® Generasi ke-13 dan Grafis RTX40 yaitu Lenovo LOQ 15, laptop ini sangat cocok digunakan untuk para gamer karena memiliki performa yang tinggi dan dilengkapi dengan chip AI Lenovo LA1 yang sangat cocok.</p>
+                    <ul class="specs-list">
+                        <li><strong>Processor</strong> <span>Intel® Core™ i5-12450HX</span></li>
+                        <li><strong>GPU</strong> <span>NVIDIA® GeForce RTX™ 2050 Laptop GPU 4GB GDDR6</span></li>
+                        <li><strong>RAM</strong> <span>28GB 4800MHz DDR5</span></li>
+                        <li><strong>Storage</strong> <span>1TB M.2 2242 PCIe Gen 4 SSD</span></li>
+                        <li><strong>Display</strong> <span>15.6″ FHD, IPS, 144Hz, 100% sRGB</span></li>
+                        <li><strong>Weight</strong> <span>2.38kg / 5.25lbs </span></li>
+                    </ul>
+                    <br>
+                    <a href="https://www.tokopedia.com/search?st=product&q=Lenovo%20LOQ%2015iax9&srp_component_id=02.01.00.00&navsource=home&srp_page_id=&srp_page_title=&navsource=home" class="btn">Buy, Same like me</a>
+                </div>
+             </div>
+        </section>
+
+        <section class="footer-section">
+    <div class="content">
+        <div class="social-icons">
+            <a href="https://web.facebook.com/nathan.tiansugianto"><img src="Facebook.png" alt="Facebook" style="width: 30px; height: 30px; margin: 0 10px;"></a>
+            <a href="https://www.instagram.com/legendrail/"><img src="Instagram.png" alt="Instagram" style="width: 30px; height: 30px; margin: 0 10px;"></a>
+            <a href="https://www.youtube.com/@NathanTS445"><img src="Youtube.png" alt="YouTube" style="width: 40px; height: 30px; margin: 0 10px;"></a>
+        </div>
+        <br>
+        <p style="font-size: 0.8rem; opacity: 0.6;">&copy; 2025 NTS Creativity. All Rights Reserved. Made with Adobe Dreamweaver feat. Google Gemini AI</p>
+    </div>
+</section>
+
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const overlay = document.getElementById('menuOverlay');
+            const burger = document.querySelector('.hamburger');
+            overlay.classList.toggle('open');
+            burger.classList.toggle('active');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // --- KONFIGURASI LOGO ---
+            const logoContainer = document.querySelector('.logo-container'); 
+            const logoImg = document.getElementById('mainLogo');
+            
+            const logoDefault = "Logo Nathan HD 1.png";  
+            const logoSection3 = "Xiaomi.png";            
+            const logoSection4 = "Lenovo.png";            
+            
+            let currentSrc = logoDefault; 
+
+            // --- KONFIGURASI SOCIAL MEDIA CYCLER ---
+            // Pastikan file gambar ini ADA di folder yang sama!
+            const socialData = [
+                { 
+                    name: "Facebook", 
+                    icon: "Facebook.png",  // Ganti dengan nama file icon FB kamu
+                    link: "https://web.facebook.com/nathan.tiansugianto" 
+                },
+                { 
+                    name: "Instagram", 
+                    icon: "Instagram.png",  // Ganti dengan nama file icon IG kamu
+                    link: "https://www.instagram.com/legendrail/" 
+                },
+                { 
+                    name: "YouTube", 
+                    icon: "Youtube.png",  // Ganti dengan nama file icon YT kamu
+                    link: "https://www.youtube.com/@NathanTS445" 
+                }
+            ];
+
+            let socialIndex = 0;
+            const socialImg = document.getElementById('socialIcon');
+            const socialLink = document.getElementById('socialLink');
+
+            // Set awal (FB)
+            socialImg.src = socialData[0].icon;
+            socialLink.href = socialData[0].link;
+
+            // Loop setiap 3 detik
+            setInterval(() => {
+                // 1. Fade Out
+                socialImg.classList.add('fade-out');
+
+                // 2. Tunggu transisi, lalu ganti data
+                setTimeout(() => {
+                    socialIndex = (socialIndex + 1) % socialData.length;
+                    
+                    socialImg.src = socialData[socialIndex].icon;
+                    socialLink.href = socialData[socialIndex].link;
+                    
+                    // 3. Fade In
+                    socialImg.classList.remove('fade-out');
+                }, 500); // Waktu tunggu sesuai CSS transition (0.5s)
+
+            }, 3000); // Ganti setiap 3 detik
+
+
+            // --- KONFIGURASI SLIDESHOW LAPTOP ---
+            const laptopImages = ["LOQ1.png", "LOQ2.png", "LOQ3.png"];
+            let laptopIndex = 0;
+            const laptopElement = document.getElementById('laptopSlideshow');
+
+            setInterval(() => {
+                laptopElement.style.opacity = 0;
+                setTimeout(() => {
+                    laptopIndex = (laptopIndex + 1) % laptopImages.length;
+                    laptopElement.src = laptopImages[laptopIndex];
+                    laptopElement.style.opacity = 1;
+                }, 500);
+            }, 5000); 
+
+            // --- INTERSECTION OBSERVER ---
+            const sectionsToObserve = [
+                document.getElementById('home'),
+                document.getElementById('bini'),
+                document.getElementById('phone'),
+                document.getElementById('laptop')
+            ];
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('focused');
+
+                        let targetSrc = logoDefault; 
+                        logoContainer.classList.remove('lenovo-mode');
+
+                        if (entry.target.id === 'phone') {
+                            targetSrc = logoSection3;
+                        } else if (entry.target.id === 'laptop') {
+                            targetSrc = logoSection4;
+                            logoContainer.classList.add('lenovo-mode');
+                        }
+
+                        if (currentSrc !== targetSrc) {
+                            logoImg.classList.add('fade-out');
+                            setTimeout(() => {
+                                logoImg.src = targetSrc;
+                                currentSrc = targetSrc; 
+                                setTimeout(() => {
+                                    logoImg.classList.remove('fade-out');
+                                }, 50);
+                            }, 500); 
+                        }
+                    } else {
+                        entry.target.classList.remove('focused');
+                    }
+                });
+            }, {
+                threshold: 0.35
+            });
+
+            sectionsToObserve.forEach(section => {
+                if(section) observer.observe(section);
+            });
+        });
+    </script>
+
+</body>
+</html>

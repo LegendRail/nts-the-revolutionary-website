@@ -1,0 +1,457 @@
+    /* =========================================
+       1. VARIABLES (PENGATURAN UTAMA)
+       ========================================= */
+    :root {
+        /* --- Warna --- */
+        --primary-blue: #00aeef;
+        --dark-bg: #000;
+        --card-bg: #222;
+        --text-color: #fff;
+        --overlay-bg: rgba(0, 0, 0, 0.95);
+
+        /* --- Ukuran Logo (DIPERKECIL) --- */
+        --logo-desktop: 40px;  /* Sebelumnya 120px */
+        --logo-mobile: 20px;   /* Sebelumnya 80px */
+
+        /* --- Z-Index Layers --- */
+        --z-section-content: 2;
+        --z-nav: 1000;
+        --z-overlay: 1500;
+        --z-hamburger: 2000;
+        --z-close-btn: 2001;
+    }
+
+    /* =========================================
+       2. RESET & BASE STYLES
+       ========================================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        overflow: hidden; /* Mencegah scroll ganda */
+    }
+
+    /* =========================================
+       3. SCROLL CONTAINER (FULLSCREEN SNAP)
+       ========================================= */
+    .scroll-container {
+        height: 100vh;
+        width: 100%;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+
+        /* Sembunyikan Scrollbar agar terlihat seperti App/TV */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    .scroll-container::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+
+    /* =========================================
+       4. NAVIGATION BAR (SAFE AREA ADJUSTED)
+       ========================================= */
+    nav {
+        position: fixed;
+        top: 0; left: 0; width: 100%;
+        
+        /* --- UPDATE SAFE AREA --- */
+        height: 100px; /* Dipertinggi agar lebih lega */
+        padding-top: 25px; /* Memberi jarak dari tepi atas layar (Safe Area) */
+        padding-left: 40px;
+        padding-right: 40px;
+        
+        display: flex;
+        justify-content: center; /* Posisi Logo di Tengah */
+        align-items: center;
+        z-index: var(--z-nav);
+        background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        pointer-events: none; /* Klik tembus ke bawah kecuali logo/tombol */
+    }
+
+    /* --- Logo Wrapper --- */
+    .logo-container {
+        pointer-events: auto;
+        width: var(--logo-desktop); /* Menggunakan variabel */
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: width 0.3s ease; /* Animasi saat resize layar */
+    }
+
+    .logo-img { 
+        width: 100%; 
+        height: auto; 
+        display: block; 
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+        
+        /* --- PERUBAHAN UNTUK SMOOTH TRANSITION --- */
+        transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; 
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Class untuk menyembunyikan logo sementara saat berganti */
+    .logo-img.hidden {
+        opacity: 0;
+        transform: scale(0.8); /* Efek sedikit mengecil saat hilang */
+    }
+
+    /* --- Hamburger Button --- */
+    .hamburger {
+        pointer-events: auto;
+        cursor: pointer;
+        width: 35px;
+        height: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: absolute;
+        left: 40px;
+        
+        /* --- Posisi Hamburger Diturunkan --- */
+        top: 60px; /* Menyesuaikan dengan center nav yang baru (100px/2 + padding) */
+        transform: translateY(-50%);
+        
+        z-index: var(--z-hamburger);
+        transition: opacity 0.3s ease;
+    }
+
+    .hamburger span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        transition: all 0.3s ease;
+    }
+
+    .hamburger:hover span {
+        background-color: var(--primary-blue);
+    }
+
+    .hamburger.active {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* =========================================
+       5. MENU OVERLAY (FULLSCREEN)
+       ========================================= */
+    .menu-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: var(--overlay-bg);
+        z-index: var(--z-overlay);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s ease;
+        backdrop-filter: blur(5px);
+        pointer-events: auto;
+    }
+
+    .menu-overlay.open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* --- Close Button (X) --- */
+    .close-btn {
+        position: absolute;
+        
+        /* --- Posisi Tombol X juga disesuaikan --- */
+        top: 60px; /* Sama dengan hamburger */
+        left: 40px;
+        
+        width: 35px;
+        height: 35px;
+        cursor: pointer;
+        z-index: var(--z-close-btn);
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .close-btn span {
+        position: absolute;
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        transition: transform 0.3s ease;
+    }
+
+    .close-btn span:nth-child(1) { transform: rotate(45deg); }
+    .close-btn span:nth-child(2) { transform: rotate(-45deg); }
+
+    .close-btn:hover span {
+        background-color: var(--primary-blue);
+        transform: rotate(135deg);
+    }
+    .close-btn:hover span:nth-child(2) { transform: rotate(45deg); }
+
+    /* --- Menu Tabs --- */
+    .menu-tabs-container {
+        width: 80%;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .menu-tab {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: transparent;
+        border: 2px solid #333;
+        padding: 25px 30px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .menu-tab .tab-number {
+        font-size: 0.9rem;
+        color: #666;
+        margin-right: 20px;
+        font-weight: 400;
+    }
+
+    .menu-tab .tab-text { flex-grow: 1; }
+
+    .menu-tab:hover {
+        border-color: var(--primary-blue);
+        background: rgba(0, 174, 239, 0.1);
+        transform: translateX(10px);
+    }
+
+    .menu-tab:hover .tab-number { color: var(--primary-blue); }
+
+    /* =========================================
+       6. SECTIONS & CONTENT
+       ========================================= */
+    section {
+        height: 100vh;
+        width: 100%;
+        scroll-snap-align: start;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+        text-align: center;
+    }
+
+    section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1;
+    }
+
+    .content {
+        position: relative;
+        z-index: var(--z-section-content);
+        max-width: 1200px;
+        padding: 20px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* --- Typography --- */
+    h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        line-height: 1.1;
+    }
+
+    h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        font-weight: 300;
+    }
+
+    /* --- Button Style --- */
+    .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        border: 2px solid #fff;
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .btn:hover {
+        background: #fff;
+        color: #000;
+    }
+
+    /* --- Specific Section Backgrounds --- */
+    #home {
+        background-image: url('Purple Cloud gf.gif');
+    }
+
+    #programs {
+        background-color: #111;
+    }
+
+    #digital {
+        background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1920&auto=format&fit=crop');
+    }
+
+    /* =========================================
+       7. PROGRAM GRID (CARD SYSTEM)
+       ========================================= */
+    .program-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        width: 90%;
+        max-width: 1000px;
+        margin-top: 30px;
+    }
+
+    .program-card {
+        background: var(--card-bg);
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .program-card:hover {
+        transform: scale(1.05);
+        z-index: 3;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        border: 1px solid var(--primary-blue);
+    }
+
+    .program-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+
+    .program-card:hover img { opacity: 0.4; }
+
+    .program-title {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        font-weight: bold;
+        text-shadow: 1px 1px 3px black;
+        pointer-events: none;
+    }
+
+/* Tambahkan ini di bagian CSS Anda */
+	.program-card a {
+    	text-decoration: none; /* Hilangkan garis bawah link */
+    	color: #fff;           /* Pastikan teks tetap putih */
+    	display: block;        /* Agar area klik memenuhi kartu */
+    	width: 100%;
+    	height: 100%;
+}
+
+    /* =========================================
+       8. FOOTER
+       ========================================= */
+    /* Pastikan section footer memiliki background gelap agar ikon putih terlihat */
+.footer-section {
+    background-color: #222; /* Contoh warna background gelap */
+    color: white;
+    padding: 30px 0;
+    text-align: center; /* Menengahkan semua konten */
+}
+
+/* Styling untuk ikon sosial media */
+.social-icons a {
+    color: white; /* Warna ikon menjadi putih */
+    font-size: 2rem; /* Ukuran ikon (sesuaikan jika terlalu besar/kecil) */
+    margin: 0 15px; /* Jarak antar ikon */
+    text-decoration: none; /* Menghilangkan garis bawah pada link */
+    transition: all 0.3s ease; /* Efek transisi halus saat hover */
+    display: inline-block;
+}
+
+/* Efek saat mouse diarahkan ke ikon (Hover) */
+.social-icons a:hover {
+    transform: translateY(-5px); /* Ikon sedikit naik ke atas */
+    color: #ddd; /* Warna sedikit meredup saat hover */
+    /* Atau jika ingin warna asli brand saat hover, gunakan ini: */
+    /*
+    .fa-facebook:hover { color: #1877F2; }
+    .fa-instagram:hover { color: #E4405F; }
+    .fa-youtube:hover { color: #FF0000; }
+    */
+}
+
+    /* Efek saat kursor diarahkan ke ikon (sedikit membesar) */
+    .social-icons-footer a:hover {
+        transform: scale(1.2);
+    }
+
+    /* =========================================
+       9. RESPONSIVE DESIGN (MOBILE)
+       ========================================= */
+    @media (max-width: 768px) {
+        /* Update variabel ukuran untuk Mobile */
+        :root {
+            --logo-desktop: var(--logo-mobile);
+        }
+
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.5rem; }
+        
+        .program-grid {
+            grid-template-columns: 1fr; /* 1 kolom di HP */
+        }
+        
+        .menu-tab {
+            padding: 20px;
+            font-size: 1.2rem;
+        }
+        
+        /* Penyesuaian padding navbar mobile */
+        nav { 
+            padding-left: 20px; 
+            padding-right: 20px; 
+        }
+        .hamburger, .close-btn { left: 20px; }
+    }
+</style>
